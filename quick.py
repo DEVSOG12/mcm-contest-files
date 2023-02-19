@@ -71,6 +71,9 @@ df['Date'] = pd.to_datetime(df['Date'])
 # 4.2. Create a new column with the number of days since the first date
 df['Days'] = (df['Date'] - df['Date'].min()).dt.days
 
+# Cut off the first 5 months of data
+df = df[df['Days'] > 150]
+
 
 # 5. Data visualization
 # 5.1. Plot the number of reported results over time
@@ -383,6 +386,37 @@ max    60247.233967  14157.406640  ... -18899.320218  139393.788152
 
 [8 rows x 6 columns]
 """
+
+print("PREDICTIONS ON MARCH 1")
+# Give be exact prediction interval at the last day of the data
+print(model.get_prediction(df2['Days']).summary_frame(alpha=0.05).tail(1))
+# And Explain the results
+print(model.get_prediction(df2['Days']).summary_frame(alpha=0.05).tail(1).describe())
+
+# Plot the predictions interval on the data
+# Plot dfk
+dfk = pd.DataFrame({'Days': range(df['Days'].min() + 1, df['Days'].max() + 1 + 30)})
+dfk['res'] = model.predict(dfk['Days'])
+
+# Make sure lower and upper bounds are not negative
+# dfk['res'] = dfk['res'].apply(lambda x: 0 if x < 0 else x)
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(dfk['Days'], dfk['res'], 'o', label='data')
+# ax.plot(dfk['Days'], model., 'r--.', label='OLS')
+ax.plot(dfk['Days'], model.predict(dfk['Days']), 'g', label='Predictions')
+# ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_lower'], 'r--', label='Predictions') # Remove the negative values from the lower bound
+
+ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_upper'], 'r--', label='Prediction Interval')
+ax.set_xlabel('Days')
+ax.set_ylabel('Number of Cases')
+ax.legend(loc='best')
+plt.savefig('prediction.png')
+plt.show()
+
+
+
+
+
 
 # 8 Do any attributes of the word affect the percentage of scores reported that were played in Hard Mode?
 

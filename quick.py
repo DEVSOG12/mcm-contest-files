@@ -516,6 +516,7 @@ plt.xlabel('Number of Syllables in the Word')
 plt.ylabel('Percentage in Hard Mode')
 plt.show()
 
+
 # Number of Syllables in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode
 # There is no correlation between the number of syllables in the word and the percentage of scores reported that were played in Hard Mode.
 

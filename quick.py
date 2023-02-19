@@ -3,7 +3,13 @@
 Wordle is a popular puzzle currently offered daily by the New York Times. Players try to solve the puzzle by guessing a five-letter word in six tries or less, receiving feedback with every guess. For this version, each guess must be an actual word in English. Guesses that are not recognized as words by the contest are not allowed. Wordle continues to grow in popularity and versions of the game are now available in over 60 languages.
 The New York Times website directions for Wordle state that the color of the tiles will change after you submit your word. A yellow tile indicates the letter in that tile is in the word, but it is in the wrong location. A green tile indicates that the letter in that tile is in the word and is in the correct location. A gray tile indicates that the letter in that tile is not included in the word at all (see Attachment 2)[2]. Figure 1 is an example solution where the correct result was found in three tries.
 """
+import datetime
+
 import scipy
+from sklearn.linear_model import LinearRegression
+from textstat import textstat
+from textblob import TextBlob
+from wordfreq import word_frequency
 
 """
 Players can play in regular mode or “Hard Mode.” Wordle’s Hard Mode makes the game more difficult by requiring that once a player has found a correct letter in a word (the tile is yellow or green), those letters must be used in subsequent guesses. The example in Figure 1 was played in Hard Mode.
@@ -232,5 +238,293 @@ plt.title('Number of reported results over time')
 plt.show()
 
 # Print the number of reported for each day after the last day in the dataset
-print(df2)
+# Adjust the number of days to print to MM/DD/YYYY format. Note that the first day is 01/31/2022
+for i in range(0, 30):
+    print('Day', df['Days'].max() + 1 + i, '(', datetime.date(2022, 1, 31) + datetime.timedelta(days=i), '):', int(df2.iloc[i]['res']))
+
+
+
+# 7. Predictions Interval
+# 7.1. Confidence Interval
+# 7.1.1. Confidence Interval for the mean
+
+# Calculate the confidence interval for the mean
+print(model.conf_int(alpha=0.05, cols=None))
+
+"""
+                               0              1
+Intercept          278311.789741  309269.339471
+Days                -2369.086860   -1619.158259
+np.power(Days, 2)       1.195843       6.067441
+np.power(Days, 3)      -0.004584       0.004360
+"""
+
+# 7.1.2. Confidence Interval for the prediction
+
+# Calculate the confidence interval for the prediction
+print(model.get_prediction(df2['Days']).summary_frame(alpha=0.05))
+
+"""
+            mean       mean_se  ...  obs_ci_lower   obs_ci_upper
+0   40765.277843   8036.712414  ... -34989.350419  116519.906106
+1   41338.856939   8205.875986  ... -34485.882054  117163.595932
+2   41919.457265   8378.040401  ... -33978.067028  117816.981558
+3   42507.078147   8553.201337  ... -33465.975351  118480.131646
+4   43101.718915   8731.355043  ... -32949.677937  119153.115767
+5   43703.378895   8912.498340  ... -32429.246590  119836.004380
+6   44312.057414   9096.628606  ... -31904.753995  120528.868824
+7   44927.753802   9283.743774  ... -31376.273697  121231.781301
+8   45550.467385   9473.842314  ... -30843.880090  121944.814859
+9   46180.197491   9666.923229  ... -30307.648397  122668.043379
+10  46816.943447   9862.986035  ... -29767.654657  123401.541551
+11  47460.704581  10062.030753  ... -29223.975698  124145.384861
+12  48111.480222  10264.057894  ... -28676.689125  124899.649569
+13  48769.269695  10469.068444  ... -28125.873295  125664.412686
+14  49434.072330  10677.063849  ... -27571.607296  126439.751956
+15  50105.887454  10888.046002  ... -27013.970923  127225.745830
+16  50784.714394  11102.017229  ... -26453.044657  128022.473444
+17  51470.552477  11318.980274  ... -25888.909636  128830.014591
+18  52163.401033  11538.938282  ... -25321.647634  129648.449700
+19  52863.259387  11761.894789  ... -24751.341029  130477.859804
+20  53570.126869  11987.853708  ... -24178.072779  131318.326516
+21  54284.002804  12216.819309  ... -23601.926391  132169.931999
+22  55004.886522  12448.796216  ... -23022.985891  133032.758935
+23  55732.777350  12683.789385  ... -22441.335796  133906.890495
+24  56467.674615  12921.804095  ... -21857.061080  134792.410310
+25  57209.577645  13162.845937  ... -21270.247144  135689.402434
+26  57958.485767  13406.920800  ... -20680.979781  136597.951315
+27  58714.398310  13654.034859  ... -20089.345140  137518.141760
+28  59477.314601  13904.194567  ... -19495.429698  138450.058899
+29  60247.233967  14157.406640  ... -18899.320218  139393.788152
+
+[30 rows x 6 columns]
+"""
+
+# 7.2. Prediction Interval
+
+# Calculate the prediction interval
+print(model.get_prediction(df2['Days']).summary_frame(alpha=0.05))
+
+"""
+[30 rows x 6 columns]
+            mean       mean_se  ...  obs_ci_lower   obs_ci_upper
+0   40765.277843   8036.712414  ... -34989.350419  116519.906106
+1   41338.856939   8205.875986  ... -34485.882054  117163.595932
+2   41919.457265   8378.040401  ... -33978.067028  117816.981558
+3   42507.078147   8553.201337  ... -33465.975351  118480.131646
+4   43101.718915   8731.355043  ... -32949.677937  119153.115767
+5   43703.378895   8912.498340  ... -32429.246590  119836.004380
+6   44312.057414   9096.628606  ... -31904.753995  120528.868824
+7   44927.753802   9283.743774  ... -31376.273697  121231.781301
+8   45550.467385   9473.842314  ... -30843.880090  121944.814859
+9   46180.197491   9666.923229  ... -30307.648397  122668.043379
+10  46816.943447   9862.986035  ... -29767.654657  123401.541551
+11  47460.704581  10062.030753  ... -29223.975698  124145.384861
+12  48111.480222  10264.057894  ... -28676.689125  124899.649569
+13  48769.269695  10469.068444  ... -28125.873295  125664.412686
+14  49434.072330  10677.063849  ... -27571.607296  126439.751956
+15  50105.887454  10888.046002  ... -27013.970923  127225.745830
+16  50784.714394  11102.017229  ... -26453.044657  128022.473444
+17  51470.552477  11318.980274  ... -25888.909636  128830.014591
+18  52163.401033  11538.938282  ... -25321.647634  129648.449700
+19  52863.259387  11761.894789  ... -24751.341029  130477.859804
+20  53570.126869  11987.853708  ... -24178.072779  131318.326516
+21  54284.002804  12216.819309  ... -23601.926391  132169.931999
+22  55004.886522  12448.796216  ... -23022.985891  133032.758935
+23  55732.777350  12683.789385  ... -22441.335796  133906.890495
+24  56467.674615  12921.804095  ... -21857.061080  134792.410310
+25  57209.577645  13162.845937  ... -21270.247144  135689.402434
+26  57958.485767  13406.920800  ... -20680.979781  136597.951315
+27  58714.398310  13654.034859  ... -20089.345140  137518.141760
+28  59477.314601  13904.194567  ... -19495.429698  138450.058899
+29  60247.233967  14157.406640  ... -18899.320218  139393.788152
+
+[30 rows x 6 columns]
+"""
+
+# Explain the results
+print(model.get_prediction(df2['Days']).summary_frame(alpha=0.05).describe())
+
+"""
+               mean       mean_se  ...  obs_ci_lower   obs_ci_upper
+count     30.000000     30.000000  ...     30.000000      30.000000
+mean   50031.766919  10894.279017  ... -27168.739114  127232.272952
+std     5918.939432   1860.589827  ...   4894.576967    6944.549852
+min    40765.277843   8036.712414  ... -34989.350419  116519.906106
+25%    45083.432198   9331.268409  ... -31243.175295  121410.039690
+50%    49769.979892  10782.554925  ... -27292.789109  126832.748893
+75%    54824.665593  12390.801989  ... -23167.721016  132817.052201
+max    60247.233967  14157.406640  ... -18899.320218  139393.788152
+
+[8 rows x 6 columns]
+"""
+
+# 8 Do any attributes of the word affect the percentage of scores reported that were played in Hard Mode?
+
+# 8.1. Data Preparation
+
+# Create a new dataframe
+df3 = df[['word', 'Number in Hard Mode', 'res'] ]
+print(df3)
+
+"""
+      word  Number in Hard Mode
+0    manly                 1899
+1    molar                 1973
+2    havoc                 1919
+3    impel                 1937
+4    condo                 2012
+..     ...                  ...
+354  drink                 3017
+355  query                 2242
+356  gorge                 1913
+357  crank                 1763
+358  slump                 1362
+
+[359 rows x 2 columns]
+"""
+
+# 8.2. Data Analysis
+
+# Create a new column for the percentage of scores reported that were played in Hard Mode
+df3.loc[:, 'Percentage in Hard Mode'] = df3['Number in Hard Mode'] / df3['res'] * 100
+# df3.loc[:, 'column_name'] = df3['Percentage in Hard Mode'].apply(lambda x: round(x, 1))
+
+
+# Create a new dataframe for the top 10 words
+df3_10 = df3.sort_values(by='Percentage in Hard Mode', ascending=False).head(10)
+
+# Create a new dataframe for the bottom 10 words
+df3_10_bottom = df3.sort_values(by='Percentage in Hard Mode', ascending=True).head(10)
+
+
+# 8.3. Data Visualization
+
+# Create a bar chart for the top 10 words
+plt.figure(figsize=(10, 5))
+plt.bar(df3_10['word'], df3_10['Percentage in Hard Mode'])
+plt.title('Top 10 Words with the Highest Percentage of Scores Reported that Were Played in Hard Mode')
+plt.xlabel('Word')
+plt.ylabel('Percentage in Hard Mode')
+plt.show()
+
+# Top 10 Words with the Highest Percentage of Scores Reported that Were Played in Hard Mode
+# Study - 90.0%
+# Piney 18.0%
+# Parer 18.0%
+# Mummy 18.0%
+# Catch 17.0%
+# Judge 17.0%
+# Waltz 17.0%
+# Ionic 17.0%
+# Libel 17.0%
+# Extra 17.0%
+
+
+# Create a bar chart for the bottom 10 words
+plt.figure(figsize=(10, 5))
+plt.bar(df3_10_bottom['word'], df3_10_bottom['Percentage in Hard Mode'])
+plt.title('Top 10 Words with the Lowest Percentage of Scores Reported that Were Played in Hard Mode')
+plt.xlabel('Word')
+plt.ylabel('Percentage in Hard Mode')
+plt.show()
+
+# Top 10 Words with the Lowest Percentage of Scores Reported that Were Played in Hard Mode
+# Robin 1.2%
+# Slump 1.6%
+# Crank 1.7%
+# Drink 1.8%
+# Gorge 2.0%
+# Query 2.1%
+# Favor 2.3%
+# Panic 2.3%
+# Tangy 2.4%
+# Solar 2.4%
+
+
+# Create a new column for the number of vowels in the word
+df3['vowels'] = df3['word'].str.count('[aeiou]')
+
+# Create a new column for the frequency of the word in the English language
+df3['freq'] = df3['word'].apply(lambda x: word_frequency(x, 'en', wordlist='large'))
+
+# Create a new column for the number of syllables in the word
+df3['syllables'] = df3['word'].apply(textstat.syllable_count)
+
+# Create a new column for the part of speech of the word using from textblob import TextBlob
+df3['pos'] = df3['word'].apply(lambda x: TextBlob(x).tags[0][1] )
+# Convert the part of speech to a number
+df3['pos'] = df3['pos'].apply(lambda x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
+
+df3 = df3[['word', 'Number in Hard Mode', 'res', 'pos', 'vowels', 'freq', 'syllables'] ]
+
+# 9.2. Data Analysis
+
+# Create a new column for the percentage of scores reported that were played in Hard Mode
+df3['Percentage in Hard Mode'] = df3['Number in Hard Mode'] / df3['res'] * 100
+
+# We want to see if the percentage of scores reported that were played in Hard Mode is correlated with the number of vowels in the word, the frequency of the word in the English language, the number of syllables in the word, and the part of speech of the word.
+
+# Let's create a correlation matrix
+print(df3.corr())
+
+"""
+                        Number in Hard Mode  ...  Percentage in Hard Mode
+Number in Hard Mode                 1.000000  ...                -0.370842
+res                                 0.922252  ...                -0.435233
+pos                                 0.116729  ...                -0.043300
+vowels                             -0.029404  ...                -0.027399
+freq                                0.137446  ...                -0.016299
+syllables                          -0.100939  ...                 0.013570
+Percentage in Hard Mode            -0.370842  ...                 1.000000
+"""
+
+# We can see that the percentage of scores reported that were played in Hard Mode is not correlated with the number of vowels in the word, the frequency of the word in the English language, the number of syllables in the word, and the part of speech of the word.
+
+# 9.3. Data Visualization
+
+# Create a scatter plot for the number of vowels in the word and the percentage of scores reported that were played in Hard Mode
+plt.figure(figsize=(10, 5))
+plt.scatter(df3['vowels'], df3['Percentage in Hard Mode'])
+plt.title('Number of Vowels in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
+plt.xlabel('Number of Vowels in the Word')
+plt.ylabel('Percentage in Hard Mode')
+plt.show()
+
+# Number of Vowels in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode
+# There is no correlation between the number of vowels in the word and the percentage of scores reported that were played in Hard Mode.
+
+
+# Create a scatter plot for the frequency of the word in the English language and the percentage of scores reported that were played in Hard Mode
+plt.figure(figsize=(10, 5))
+plt.scatter(df3['freq'], df3['Percentage in Hard Mode'])
+plt.title('Frequency of the Word in the English Language vs. Percentage of Scores Reported that Were Played in Hard Mode')
+plt.xlabel('Frequency of the Word in the English Language')
+plt.ylabel('Percentage in Hard Mode')
+plt.show()
+
+
+# Frequency of the Word in the English Language vs. Percentage of Scores Reported that Were Played in Hard Mode
+# There is no correlation between the frequency of the word in the English language and the percentage of scores reported that were played in Hard Mode.
+
+
+# Create a scatter plot for the number of syllables in the word and the percentage of scores reported that were played in Hard Mode
+plt.figure(figsize=(10, 5))
+plt.scatter(df3['syllables'], df3['Percentage in Hard Mode'])
+plt.title('Number of Syllables in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
+plt.xlabel('Number of Syllables in the Word')
+plt.ylabel('Percentage in Hard Mode')
+plt.show()
+
+# Number of Syllables in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode
+# There is no correlation between the number of syllables in the word and the percentage of scores reported that were played in Hard Mode.
+
+
+# Create a scatter plot for the part of speech of the word and the percentage of scores reported that were played in Hard Mode
+plt.figure(figsize=(10, 5))
+plt.scatter(df3['pos'], df3['Percentage in Hard Mode'])
+plt.title('Part of Speech of the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
+plt.xlabel('Part of Speech of the Word')
+plt.ylabel('Percentage in Hard Mode')
+plt.show()
 

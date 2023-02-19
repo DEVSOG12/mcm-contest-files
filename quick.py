@@ -79,6 +79,7 @@ plt.plot(df['Days'], df['res'])
 plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time.png')
 plt.show()
 
 # There is a spike in the number of reported results from 10 to 70
@@ -89,6 +90,7 @@ plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time (zoomed in)')
 plt.xlim(0, 70)
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_zoomed_in.png')
 plt.show()
 
 
@@ -99,6 +101,7 @@ model = smf.ols('res ~ Days', data=df).fit()
 
 # 6.2. Model summary
 print(model.summary())
+
 
 """
  OLS Regression Results                            
@@ -143,7 +146,11 @@ plt.plot(df['Days'], model.predict(df['Days']), 'r')
 plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_model.png')
 plt.show()
+
+
+
 
 # 6.3. Model diagnostics
 # 6.3.1. Normality
@@ -159,6 +166,7 @@ ShapiroResult(statistic=0.7801181674003601, pvalue=1.207792847433154e-21)
 
 # QQ plot
 fig = sm.qqplot(model.resid, line='s')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/qq_plot.png')
 plt.show()
 
 # 6.3.2. Homoscedasticity
@@ -171,6 +179,7 @@ plt.plot(model.predict(df['Days']), model.resid, 'o')
 plt.xlabel('Predicted values')
 plt.ylabel('Residuals')
 plt.title('Residuals vs. predicted values')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/residuals_vs_predicted_values.png')
 plt.show()
 
 # Optimize model to fix homoscedasticity and normality
@@ -218,8 +227,22 @@ plt.plot(df['Days'], model.predict(df['Days']), 'r')
 plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_model_homosdk.png')
 plt.show()
 
+
+dfk = pd.DataFrame({'Days': range(df['Days'].min() + 1, df['Days'].max() + 1 + 30)})
+dfk['res'] = model.predict(dfk['Days'])
+
+# Plot
+plt.figure(figsize=(12, 8))
+plt.plot(df['Days'], df['res'], 'o')
+plt.plot(dfk['Days'], dfk['res'], 'o')
+plt.xlabel('Days')
+plt.ylabel('Number of reported results')
+plt.title('Number of reported results over time')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_predictions_n.png')
+plt.show()
 
 # Let's run predictions for the next x days till March 1st after the last day in the dataset
 # We will use the optimized model
@@ -235,7 +258,9 @@ plt.plot(df2['Days'], df2['res'], 'o')
 plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_predictions.png')
 plt.show()
+
 
 # Print the number of reported for each day after the last day in the dataset
 # Adjust the number of days to print to MM/DD/YYYY format. Note that the first day is 01/31/2022
@@ -406,7 +431,9 @@ plt.bar(df3_10['word'], df3_10['Percentage in Hard Mode'])
 plt.title('Top 10 Words with the Highest Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Word')
 plt.ylabel('Percentage in Hard Mode')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Top_10_Words_with_the_Highest_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
+
 
 # Top 10 Words with the Highest Percentage of Scores Reported that Were Played in Hard Mode
 # Study - 90.0%
@@ -427,7 +454,9 @@ plt.bar(df3_10_bottom['word'], df3_10_bottom['Percentage in Hard Mode'])
 plt.title('Top 10 Words with the Lowest Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Word')
 plt.ylabel('Percentage in Hard Mode')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Top_10_Words_with_the_Lowest_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
+
 
 # Top 10 Words with the Lowest Percentage of Scores Reported that Were Played in Hard Mode
 # Robin 1.2%
@@ -489,7 +518,9 @@ plt.scatter(df3['vowels'], df3['Percentage in Hard Mode'])
 plt.title('Number of Vowels in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Number of Vowels in the Word')
 plt.ylabel('Percentage in Hard Mode')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Number_of_Vowels_in_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
+
 
 # Number of Vowels in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode
 # There is no correlation between the number of vowels in the word and the percentage of scores reported that were played in Hard Mode.
@@ -501,6 +532,7 @@ plt.scatter(df3['freq'], df3['Percentage in Hard Mode'])
 plt.title('Frequency of the Word in the English Language vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Frequency of the Word in the English Language')
 plt.ylabel('Percentage in Hard Mode')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Frequency_of_the_Word_in_the_English_Language_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
 
 
@@ -514,6 +546,7 @@ plt.scatter(df3['syllables'], df3['Percentage in Hard Mode'])
 plt.title('Number of Syllables in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Number of Syllables in the Word')
 plt.ylabel('Percentage in Hard Mode')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Number_of_Syllables_in_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
 
 
@@ -527,5 +560,34 @@ plt.scatter(df3['pos'], df3['Percentage in Hard Mode'])
 plt.title('Part of Speech of the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Part of Speech of the Word')
 plt.ylabel('Percentage in Hard Mode')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Part_of_Speech_of_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
 
+
+# Do any attributes of the word affect the percentage of scores reported that were played in Hard Mode? If so, how? If not, why not?
+
+"""
+From the scatter plots, we can see that the number of vowels in the word, the frequency of the word in the English language, the number of syllables in the word, and the part of speech of the word do not affect the percentage of scores reported that were played in Hard Mode.
+
+This is because the percentage of scores reported that were played in Hard Mode is not correlated with the number of vowels in the word, the frequency of the word in the English language, the number of syllables in the word, and the part of speech of the word.
+
+The percentage of scores reported that were played in Hard Mode is negatively correlated with the number of scores reported for the word, which means that the more scores that were reported for the word, the less likely it is that the percentage of scores reported that were played in Hard Mode is high.
+
+This is because the more scores that were reported for the word, the more likely it is that the percentage of scores reported that were played in Hard Mode is low.
+"""
+
+
+# For a given future solution word on a future date, develop a model that allows you to predict the distribution of the reported results. In other words, to predict the associated percentages of (1, 2, 3, 4, 5, 6, X) for a future date.
+
+# 10.1. Data Preprocessing
+
+# Create a new column for the number of scores reported for the word
+df3['Number of Scores Reported'] = df3['res']
+
+# Only two modes (Regular and Hard) are available in the game, so the percentage of scores reported that were played in Regular Mode is 100% - the percentage of scores reported that were played in Hard Mode
+df3['Percentage in Regular Mode'] = 100 - df3['Percentage in Hard Mode']
+
+
+# 10.2. Data Analysis
+
+# Create a new column for the percentage of scores reported that were played in Regular Mode

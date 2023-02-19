@@ -404,7 +404,7 @@ fig, ax = plt.subplots(figsize=(10, 6))
 ax.plot(dfk['Days'], dfk['res'], 'o', label='data')
 # ax.plot(dfk['Days'], model., 'r--.', label='OLS')
 ax.plot(dfk['Days'], model.predict(dfk['Days']), 'g', label='Predictions')
-# ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_lower'], 'r--', label='Predictions') # Remove the negative values from the lower bound
+ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_lower'], 'r--', label='Predictions Interval' ) # Remove the negative values from the lower bound
 
 ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_upper'], 'r--', label='Prediction Interval')
 ax.set_xlabel('Days')

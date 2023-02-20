@@ -816,8 +816,21 @@ df['Last Letter'] = df['Last Letter'].apply(lambda x: ord(x))
 # Create a new column for the percentage of players who guessed the word in one try
 df['Percentage of Players Who Guessed the Word in One Try'] = df['1 try %']
 
+
 # Create a new column for the difficulty of the word
-df['Difficulty'] = df['Percentage of Players Who Guessed the Word in One Try'].apply(lambda x: 'Easy' if x >= 0.7 else 'Medium' if x >= 0.5 else 'Hard')
+# In 2 or 3 then easy
+# 4 or 5 then medium
+# 6, 7 and plus then hard
+
+# if (2 try + 3 try) == easy or (4 try + 5 try ) == meduim or (6 try + 7 try or plus) == Hard . Max value
+df['poss_easy'] = df['2 tries %'] + df['3 tries %']
+df['poss_medium'] = df['4 tries %'] + df['5 tries %']
+df['poss_hard'] = df['6 tries'] + df['7 or more tries']
+
+# Check "poss_easy", "poss_medium", "poss_hard" and get the max value. If max value is "poss_easy" then easy, if max value is "poss_medium" then medium, if max value is "poss_hard" then hard
+df['Difficulty'] = df.apply(lambda x: 'Easy' if x['poss_easy'] > x['poss_medium'] and x['poss_easy'] > x['poss_hard'] else 'Medium' if x['poss_medium'] > x['poss_easy'] and x['poss_medium'] > x['poss_hard'] else 'Hard', axis=1) 
+
+
 # Change the difficulty column to 0 1 2 for easy medium hard
 df['Difficulty'] = df['Difficulty'].apply(lambda x: 0 if x == 'Easy' else 1 if x == 'Medium' else 2)
 
@@ -861,7 +874,7 @@ model = DecisionTreeClassifier()
 model.fit(X_train, y_train)
 
 # Predict the difficulty of the word EERIE
-word = 'manor'
+word = 'nymph'
 df_future = pd.DataFrame({'word': [word]})
 df_future['Length of Word'] = df_future['word'].str.len()
 df_future['Number of Repeating Letters'] = df_future['word'].apply(lambda x: len([k for k, g in groupby(x)]))

@@ -6,7 +6,10 @@ The New York Times website directions for Wordle state that the color of the til
 import datetime
 
 import scipy
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error
+from sklearn.tree import DecisionTreeRegressor
 from textstat import textstat
 from textblob import TextBlob
 from wordfreq import word_frequency
@@ -71,9 +74,23 @@ df['Date'] = pd.to_datetime(df['Date'])
 # 4.2. Create a new column with the number of days since the first date
 df['Days'] = (df['Date'] - df['Date'].min()).dt.days
 
-# Cut off the first 5 months of data
-df = df[df['Days'] > 150]
+plt.figure(figsize=(12, 8))
 
+plt.plot(df['Days'], df['res'])
+plt.xlabel('Days')
+plt.ylabel('Number of reported results')
+plt.title('Number of reported results over time')
+plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_timess.png')
+plt.show()
+
+# Remove abnormalities and outliers from the data
+
+
+
+
+
+# Cut off the first 5 months of data // TODO: Find a better way to do this
+df = df[df['Days'] > 5]
 
 # 5. Data visualization
 # 5.1. Plot the number of reported results over time
@@ -96,15 +113,12 @@ plt.xlim(0, 70)
 plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_zoomed_in.png')
 plt.show()
 
-
-
 # 6. Model
 # 6.1. Create a model
 model = smf.ols('res ~ Days', data=df).fit()
 
 # 6.2. Model summary
 print(model.summary())
-
 
 """
  OLS Regression Results                            
@@ -140,8 +154,6 @@ model = smf.ols('res ~ Days + np.power(Days, 2)', data=df).fit()
 # Model summary
 print(model.summary())
 
-
-
 # Plot
 plt.figure(figsize=(12, 8))
 plt.plot(df['Days'], df['res'], 'o')
@@ -151,9 +163,6 @@ plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
 plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_model.png')
 plt.show()
-
-
-
 
 # 6.3. Model diagnostics
 # 6.3.1. Normality
@@ -230,9 +239,9 @@ plt.plot(df['Days'], model.predict(df['Days']), 'r')
 plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_model_homosdk.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_model_homosdk.png')
 plt.show()
-
 
 dfk = pd.DataFrame({'Days': range(df['Days'].min() + 1, df['Days'].max() + 1 + 30)})
 dfk['res'] = model.predict(dfk['Days'])
@@ -244,7 +253,8 @@ plt.plot(dfk['Days'], dfk['res'], 'o')
 plt.xlabel('Days')
 plt.ylabel('Number of reported results')
 plt.title('Number of reported results over time')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_predictions_n.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_predictions_n.png')
 plt.show()
 
 # Let's run predictions for the next x days till March 1st after the last day in the dataset
@@ -264,13 +274,11 @@ plt.title('Number of reported results over time')
 plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/number_of_reported_results_over_time_with_predictions.png')
 plt.show()
 
-
 # Print the number of reported for each day after the last day in the dataset
 # Adjust the number of days to print to MM/DD/YYYY format. Note that the first day is 01/31/2022
 for i in range(0, 30):
-    print('Day', df['Days'].max() + 1 + i, '(', datetime.date(2022, 1, 31) + datetime.timedelta(days=i), '):', int(df2.iloc[i]['res']))
-
-
+    print('Day', df['Days'].max() + 1 + i, '(', datetime.date(2022, 1, 31) + datetime.timedelta(days=i), '):',
+          int(df2.iloc[i]['res']))
 
 # 7. Predictions Interval
 # 7.1. Confidence Interval
@@ -404,26 +412,23 @@ fig, ax = plt.subplots(figsize=(10, 6))
 ax.plot(dfk['Days'], dfk['res'], 'o', label='data')
 # ax.plot(dfk['Days'], model., 'r--.', label='OLS')
 ax.plot(dfk['Days'], model.predict(dfk['Days']), 'g', label='Predictions')
-ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_lower'], 'r--', label='Predictions Interval' ) # Remove the negative values from the lower bound
+ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_lower'], 'r--',
+        label='Predictions Interval')  # Remove the negative values from the lower bound
 
-ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_upper'], 'r--', label='Prediction Interval')
+ax.plot(dfk['Days'], model.get_prediction(dfk['Days']).summary_frame(alpha=0.05)['obs_ci_upper'], 'r--',
+        label='Prediction Interval')
 ax.set_xlabel('Days')
 ax.set_ylabel('Number of Cases')
 ax.legend(loc='best')
 plt.savefig('prediction.png')
 plt.show()
 
-
-
-
-
-
 # 8 Do any attributes of the word affect the percentage of scores reported that were played in Hard Mode?
 
 # 8.1. Data Preparation
 
 # Create a new dataframe
-df3 = df[['word', 'Number in Hard Mode', 'res'] ]
+df3 = df[['word', 'Number in Hard Mode', 'res']]
 print(df3)
 
 """
@@ -456,7 +461,6 @@ df3_10 = df3.sort_values(by='Percentage in Hard Mode', ascending=False).head(10)
 # Create a new dataframe for the bottom 10 words
 df3_10_bottom = df3.sort_values(by='Percentage in Hard Mode', ascending=True).head(10)
 
-
 # 8.3. Data Visualization
 
 # Create a bar chart for the top 10 words
@@ -465,9 +469,9 @@ plt.bar(df3_10['word'], df3_10['Percentage in Hard Mode'])
 plt.title('Top 10 Words with the Highest Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Word')
 plt.ylabel('Percentage in Hard Mode')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Top_10_Words_with_the_Highest_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/Top_10_Words_with_the_Highest_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
-
 
 # Top 10 Words with the Highest Percentage of Scores Reported that Were Played in Hard Mode
 # Study - 90.0%
@@ -488,9 +492,9 @@ plt.bar(df3_10_bottom['word'], df3_10_bottom['Percentage in Hard Mode'])
 plt.title('Top 10 Words with the Lowest Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Word')
 plt.ylabel('Percentage in Hard Mode')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Top_10_Words_with_the_Lowest_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/Top_10_Words_with_the_Lowest_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
-
 
 # Top 10 Words with the Lowest Percentage of Scores Reported that Were Played in Hard Mode
 # Robin 1.2%
@@ -515,11 +519,12 @@ df3['freq'] = df3['word'].apply(lambda x: word_frequency(x, 'en', wordlist='larg
 df3['syllables'] = df3['word'].apply(textstat.syllable_count)
 
 # Create a new column for the part of speech of the word using from textblob import TextBlob
-df3['pos'] = df3['word'].apply(lambda x: TextBlob(x).tags[0][1] )
+df3['pos'] = df3['word'].apply(lambda x: TextBlob(x).tags[0][1])
 # Convert the part of speech to a number
-df3['pos'] = df3['pos'].apply(lambda x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
+df3['pos'] = df3['pos'].apply(lambda
+                                  x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
 
-df3 = df3[['word', 'Number in Hard Mode', 'res', 'pos', 'vowels', 'freq', 'syllables'] ]
+df3 = df3[['word', 'Number in Hard Mode', 'res', 'pos', 'vowels', 'freq', 'syllables']]
 
 # 9.2. Data Analysis
 
@@ -552,9 +557,9 @@ plt.scatter(df3['vowels'], df3['Percentage in Hard Mode'])
 plt.title('Number of Vowels in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Number of Vowels in the Word')
 plt.ylabel('Percentage in Hard Mode')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Number_of_Vowels_in_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/Number_of_Vowels_in_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
-
 
 # Number of Vowels in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode
 # There is no correlation between the number of vowels in the word and the percentage of scores reported that were played in Hard Mode.
@@ -563,12 +568,13 @@ plt.show()
 # Create a scatter plot for the frequency of the word in the English language and the percentage of scores reported that were played in Hard Mode
 plt.figure(figsize=(10, 5))
 plt.scatter(df3['freq'], df3['Percentage in Hard Mode'])
-plt.title('Frequency of the Word in the English Language vs. Percentage of Scores Reported that Were Played in Hard Mode')
+plt.title(
+    'Frequency of the Word in the English Language vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Frequency of the Word in the English Language')
 plt.ylabel('Percentage in Hard Mode')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Frequency_of_the_Word_in_the_English_Language_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/Frequency_of_the_Word_in_the_English_Language_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
-
 
 # Frequency of the Word in the English Language vs. Percentage of Scores Reported that Were Played in Hard Mode
 # There is no correlation between the frequency of the word in the English language and the percentage of scores reported that were played in Hard Mode.
@@ -580,9 +586,9 @@ plt.scatter(df3['syllables'], df3['Percentage in Hard Mode'])
 plt.title('Number of Syllables in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Number of Syllables in the Word')
 plt.ylabel('Percentage in Hard Mode')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Number_of_Syllables_in_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/Number_of_Syllables_in_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
-
 
 # Number of Syllables in the Word vs. Percentage of Scores Reported that Were Played in Hard Mode
 # There is no correlation between the number of syllables in the word and the percentage of scores reported that were played in Hard Mode.
@@ -594,9 +600,9 @@ plt.scatter(df3['pos'], df3['Percentage in Hard Mode'])
 plt.title('Part of Speech of the Word vs. Percentage of Scores Reported that Were Played in Hard Mode')
 plt.xlabel('Part of Speech of the Word')
 plt.ylabel('Percentage in Hard Mode')
-plt.savefig('/Users/oreofe/PycharmProjects/DataCScub/Images/Part_of_Speech_of_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
+plt.savefig(
+    '/Users/oreofe/PycharmProjects/DataCScub/Images/Part_of_Speech_of_the_Word_vs_Percentage_of_Scores_Reported_that_Were_Played_in_Hard_Mode.png')
 plt.show()
-
 
 # Do any attributes of the word affect the percentage of scores reported that were played in Hard Mode? If so, how? If not, why not?
 
@@ -611,17 +617,168 @@ This is because the more scores that were reported for the word, the more likely
 """
 
 
+
+
+# Background
+"""
+Wordle is a popular puzzle currently offered daily by the New York Times. Players try to solve the puzzle by guessing a five-letter word in six tries or less, receiving feedback with every guess. For this version, each guess must be an actual word in English. Guesses that are not recognized as words by the contest are not allowed. Wordle continues to grow in popularity and versions of the game are now available in over 60 languages.
+The New York Times website directions for Wordle state that the color of the tiles will change after you submit your word. A yellow tile indicates the letter in that tile is in the word, but it is in the wrong location. A green tile indicates that the letter in that tile is in the word and is in the correct location. A gray tile indicates that the letter in that tile is not included in the word at all (see Attachment 2)[2]. Figure 1 is an example solution where the correct result was found in three tries.
+"""
+
+"""
+Players can play in regular mode or “Hard Mode.” Wordle’s Hard Mode makes the game more difficult by requiring that once a player has found a correct letter in a word (the tile is yellow or green), those letters must be used in subsequent guesses. The example in Figure 1 was played in Hard Mode.
+Many (but not all) users report their scores on Twitter. For this problem, MCM has generated a file of daily results for January 7, 2022 through December 31, 2022 (see Attachment 1). This file includes the date, contest number, word of the day, the number of people reporting scores that day, the number of players on hard mode, and the percentage that guessed the word in one try, two tries, three tries, four tries, five tries, six tries, or could not solve the puzzle (indicated by X). For example, in Figure 2 the word on July 20, 2022 was “TRITE” and the results were obtained by mining Twitter. Although the percentages in Figure 2 sum to 100%, in some cases this may not be true due to rounding.
+"""
+
+# Requirements
+
+"""
+For a given future solution word on a future date, develop a model that allows you to predict the distribution of the reported results. In other words, to predict the associated percentages of (1, 2, 3, 4, 5, 6, X) for a future date.
+"""
+
+# Data
+
+"""
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 359 entries, 0 to 358
+Data columns (total 12 columns):
+ #   Column               Non-Null Count  Dtype 
+---  ------               --------------  ----- 
+ 0   Date                 359 non-null    object
+ 1   Contest Number       359 non-null    int64 
+ 2   word                 359 non-null    object
+ 3   res                  359 non-null    int64 
+ 4   Number in Hard Mode  359 non-null    int64 
+ 5   1 try %              359 non-null    int64 
+ 6   2 tries %            359 non-null    int64 
+ 7   3 tries %            359 non-null    int64 
+ 8   4 tries %            359 non-null    int64 
+ 9   5 tries %            359 non-null    int64 
+ 10  6 tries %            359 non-null    int64 
+ 11  7 or more tries %    359 non-null    int64 
+dtypes: int64(10), object(2)
+"""
+
+# Data Cleaning
+
+# """
+# Convert the Date column to a datetime object
+df['Date'] = pd.to_datetime(df['Date'])
+
 # For a given future solution word on a future date, develop a model that allows you to predict the distribution of the reported results. In other words, to predict the associated percentages of (1, 2, 3, 4, 5, 6, X) for a future date.
 
-# 10.1. Data Preprocessing
-
-# Create a new column for the number of scores reported for the word
-df3['Number of Scores Reported'] = df3['res']
-
-# Only two modes (Regular and Hard) are available in the game, so the percentage of scores reported that were played in Regular Mode is 100% - the percentage of scores reported that were played in Hard Mode
-df3['Percentage in Regular Mode'] = 100 - df3['Percentage in Hard Mode']
+# We need to predict the percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for a future date.
 
 
-# 10.2. Data Analysis
+# Let's match difficulty level of the word with the percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for a future date.
 
-# Create a new column for the percentage of scores reported that were played in Regular Mode
+# We need to create a new column for the difficulty level of the word.
+# We will use the following criteria to determine the difficulty level of the word:
+# 1. If the percentage of reported result of 1 try is greater than or equal to 50%, the difficulty level of the word is Easy.
+# 2. If the percentage of reported result of 1 try is less than 50%, the difficulty level of the word is Hard.
+# 3. 
+
+# Create a new columns for number of tries
+df['1 try'] = df['1 try %'] * df['res'] / 100
+df['2 tries'] = df['2 tries %'] * df['res'] / 100
+df['3 tries'] = df['3 tries %'] * df['res'] / 100
+df['4 tries'] = df['4 tries %'] * df['res'] / 100
+df['5 tries'] = df['5 tries %'] * df['res'] / 100
+df['6 tries'] = df['6 tries %'] * df['res'] / 100
+df['7 or more tries'] = df['7 or more tries %'] * df['res'] / 100
+
+# Create a new column for the difficulty level of the word
+# df['Difficulty Level'] = np.where(df['1 try %'] >= 50, 'Easy', 'Hard')
+
+# Create a new column for the number of vowels in the word
+df['Number of Vowels'] = df['word'].str.count(r'[aeiou]')
+
+df['freq'] = df['word'].apply(lambda x: word_frequency(x, 'en', wordlist='large'))
+
+
+df['Date'] = pd.to_datetime(df['Date'])
+df['Date'] = df['Date'].apply(lambda x: x.toordinal())
+
+# Create a new column for the number of syllables in the word
+df['Number of Syllables'] = df['word'].apply(textstat.syllable_count)
+
+# Create a new column for the part of speech of the word
+df['Part of Speech'] = df['word'].apply(lambda
+                                  x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
+
+# Create a new column for the number of consonants in the word
+df['Number of Consonants'] = df['word'].str.count(r'[^aeiou]')
+
+# Create a new column for the number of letters in the word
+df['Number of Letters'] = df['word'].str.len()
+
+# Split the data into features and target
+X = df[['Date', 'Number of Vowels', 'Number of Syllables', 'Part of Speech', 'freq', 'Number of Consonants' ]]
+y = df[['1 try %', '2 tries %', '3 tries %', '4 tries %', '5 tries %', '6 tries %', '7 or more tries %']]
+
+# One-hot encode the categorical features
+# X = pd.get_dummies(X, columns=[ 'Part of Speech', 'Number of Vowels', 'Number of Syllables'])
+
+# Train a linear regression model
+model = LinearRegression()
+model.fit(X, y)
+
+# Use the trained model to predict the percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for a future date.
+# For example, if the word is 'abacus' and the date is 2021-01-01, the model should predict the percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for 2021-01-01.
+
+# Create a new dataframe for the future date
+word = 'eerie'
+date = '03/01/2023'
+
+df_future = pd.DataFrame({'Date': [date], 'word': [word]})
+df_future['Date'] = pd.to_datetime(df_future['Date'])
+df_future['Date'] = df_future['Date'].apply(lambda x: x.toordinal())
+
+
+# Create a new column for the number of vowels in the word
+df_future['Number of Vowels'] = df_future['word'].str.count(r'[aeiou]')
+# Create a new column for the number of syllables in the word
+df_future['Number of Syllables'] = df_future['word'].apply(textstat.syllable_count)
+# Create a new column for the part of speech of the word
+df_future['Part of Speech'] = df_future['word'].apply(lambda
+                                  x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
+
+df_future['freq'] = df_future['word'].apply(lambda x: word_frequency(x, 'en', wordlist='large'))
+
+# Create a new column for the number of consonants in the word
+df_future['Number of Consonants'] = df_future['word'].str.count(r'[^aeiou]')
+
+# Remove word column
+df_future = df_future.drop(['word'], axis=1)
+
+# One-hot encode the categorical features
+# df_future = pd.get_dummies(df_future, columns=[ 'Part of Speech', 'Number of Vowels', 'Number of Syllables'])
+
+# Predict the percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for a future date.
+y_pred = model.predict(df_future)
+
+# Print the predicted percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for a future date.
+print(y_pred)
+for i in range(len(y_pred[0])):
+    print('Percentage of reported result of ' + str(i+1) + ' try: ' + str(int(y_pred[0][i])))
+
+
+# Plot the predicted percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for a future date.
+plt.plot(y_pred[0])
+plt.title('Percentage of reported result of 1 try, 2 tries, 3 tries, 4 tries, 5 tries, 6 tries, and 7 or more tries for ' + word + ' on ' + date)
+plt.xlabel('Number of tries')
+plt.ylabel('Percentage')
+plt.show()
+
+
+"""
+Develop and summarize a model to classify solution words by difficulty. Identify the attributes of a given word that are associated with each classification. Using your model, how difficult is the word EERIE? Discuss the accuracy of your classification model.
+"""
+
+# Skip Libraries import
+
+# Load the data
+
+# Skip creating a new column for the number of consonants in the word
+
+# Let

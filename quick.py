@@ -4,12 +4,14 @@ Wordle is a popular puzzle currently offered daily by the New York Times. Player
 The New York Times website directions for Wordle state that the color of the tiles will change after you submit your word. A yellow tile indicates the letter in that tile is in the word, but it is in the wrong location. A green tile indicates that the letter in that tile is in the word and is in the correct location. A gray tile indicates that the letter in that tile is not included in the word at all (see Attachment 2)[2]. Figure 1 is an example solution where the correct result was found in three tries.
 """
 import datetime
+from itertools import groupby
 
 import scipy
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
 from textstat import textstat
 from textblob import TextBlob
 from wordfreq import word_frequency
@@ -775,10 +777,109 @@ plt.show()
 Develop and summarize a model to classify solution words by difficulty. Identify the attributes of a given word that are associated with each classification. Using your model, how difficult is the word EERIE? Discuss the accuracy of your classification model.
 """
 
-# Skip Libraries import
 
-# Load the data
 
-# Skip creating a new column for the number of consonants in the word
+"""
+Ans
+To build a model for classification, we can use a decision tree algorithm. We will split the data into training and testing sets, and use the training set to fit the decision tree. We can use the following attributes to build the tree:
 
-# Let
+Length of the word
+Number of vowels in the word
+Number of consonants in the word
+Number of repeating letters
+First letter of the word
+Last letter of the word
+Once the tree is built, we can use it to predict the difficulty of a new word by following the path down the tree based on its attribute values.
+
+To classify the words in the dataset, we can use the decision tree model and calculate the percentage of players who guessed the word in one try. We can then assign a classification based on the range of percentages. For example, if a word has a percentage of 70% or higher, it would be classified as "Easy," 50-70% would be "Medium," and below 50% would be "Hard."
+
+Using this model, we can predict the difficulty of the word EERIE by inputting its attribute values into the decision tree and following the path to its predicted classification.
+
+The accuracy of this classification model can be evaluated using metrics such as precision, recall, and F1 score, as well as through cross-validation and comparison to other models. It's important to note that the model's accuracy may be influenced by factors such as the choice of attributes, the size and representativeness of the dataset, and the complexity of the decision tree. Therefore, the model should be tested and refined over time to improve its performance.
+"""
+
+# Create a new column for the length of the word
+df['Length of Word'] = df['word'].str.len()
+
+# Create a new column for the number of repeating letters in the word
+df['Number of Repeating Letters'] = df['word'].apply(lambda x: len([k for k, g in groupby(x)]))
+
+# Create a new column for the first letter of the word
+df['First Letter'] = df['word'].str[0]
+
+# Create a new column for the last letter of the word
+df['Last Letter'] = df['word'].str[-1]
+# Change to ASCII value
+df['First Letter'] = df['First Letter'].apply(lambda x: ord(x))
+df['Last Letter'] = df['Last Letter'].apply(lambda x: ord(x))
+
+# Create a new column for the percentage of players who guessed the word in one try
+df['Percentage of Players Who Guessed the Word in One Try'] = df['1 try %']
+
+# Create a new column for the difficulty of the word
+df['Difficulty'] = df['Percentage of Players Who Guessed the Word in One Try'].apply(lambda x: 'Easy' if x >= 0.7 else 'Medium' if x >= 0.5 else 'Hard')
+# Change the difficulty column to 0 1 2 for easy medium hard
+df['Difficulty'] = df['Difficulty'].apply(lambda x: 0 if x == 'Easy' else 1 if x == 'Medium' else 2)
+
+# Create a new column for the number of vowels in the word
+df['Number of Vowels'] = df['word'].str.count(r'[aeiou]')
+
+# Create a new column for the number of syllables in the word
+df['Number of Syllables'] = df['word'].apply(lambda x: textstat.syllable_count(x))
+
+# Create a new column for the number of consonants in the word
+df['Number of Consonants'] = df['word'].str.count(r'[^aeiou]')
+
+
+df['pos'] = df['word'].apply(lambda x: TextBlob(x).tags[0][1])
+
+df['pos'] = df['pos'].apply(lambda
+                                  x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
+
+# Remove word column
+df = df.drop(['word'], axis=1)
+
+# One-hot encode the categorical features
+# df = pd.get_dummies(df, columns=[ 'Part of Speech', 'Number of Vowels', 'Number of Syllables'])
+
+# X =
+# Split the data into training and testing sets
+X = df[['Length of Word', 'Number of Repeating Letters', 'First Letter', 'Last Letter', 'Number of Vowels','Number of Syllables', 'Number of Consonants', 'pos']]
+# Drop string columns
+
+# print(X.values)
+
+
+
+y = df[['Difficulty']]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Fit the decision tree model
+model = DecisionTreeClassifier()
+
+model.fit(X_train, y_train)
+
+# Predict the difficulty of the word EERIE
+word = 'manor'
+df_future = pd.DataFrame({'word': [word]})
+df_future['Length of Word'] = df_future['word'].str.len()
+df_future['Number of Repeating Letters'] = df_future['word'].apply(lambda x: len([k for k, g in groupby(x)]))
+df_future['First Letter'] = df_future['word'].str[0]
+df_future['First Letter'] = df_future['First Letter'].apply(lambda x: ord(x))
+df_future['Last Letter'] = df_future['word'].str[-1]
+df_future['Last Letter'] = df_future['Last Letter'].apply(lambda x: ord(x))
+df_future['Number of Vowels'] = df_future['word'].str.count(r'[aeiou]')
+df_future['Number of Syllables'] = df_future['word'].apply(lambda x: textstat.syllable_count(x))
+df_future['Number of Consonants'] = df_future['word'].str.count(r'[^aeiou]')
+df_future['pos'] = df_future['word'].apply(lambda x: TextBlob(x).tags[0][1])
+
+df_future['pos'] = df_future['pos'].apply(lambda
+                                  x: 1 if x == 'NN' else 2 if x == 'VB' else 3 if x == 'JJ' else 4 if x == 'RB' else 5 if x == 'PRP' else 6 if x == 'DT' else 7 if x == 'IN' else 8 if x == 'CC' else 9 if x == 'CD' else 10 if x == 'NNS' else 11 if x == 'VBD' else 12 if x == 'VBG' else 13 if x == 'VBN' else 14 if x == 'VBP' else 15 if x == 'VBZ' else 16 if x == 'JJR' else 17 if x == 'JJS' else 18 if x == 'RBR' else 19 if x == 'RBS' else 20 if x == 'PRP$' else 21 if x == 'WP' else 22 if x == 'WP$' else 23 if x == 'MD' else 24 if x == 'EX' else 25 if x == 'WDT' else 26 if x == 'PDT' else 27 if x == 'RP' else 28 if x == 'FW' else 29 if x == 'UH' else 30 if x == 'SYM' else 31 if x == 'TO' else 32 if x == 'LS' else 33 if x == 'POS' else 34 if x == 'NNP' else 35 if x == 'NNPS' else 36 if x == 'WRB' else 37 if x == 'NNPS' else 0)
+
+df_future = df_future.drop(['word'], axis=1)
+# df_future = pd.get_dummies(df_future, columns=[ 'Part of Speech', 'Number of Vowels', 'Number of Syllables'])
+y_pred = model.predict(df_future)
+print('Difficulty of ' + word + ': ' + str(y_pred[0]))
+
+
